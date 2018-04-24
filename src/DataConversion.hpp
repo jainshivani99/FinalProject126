@@ -1,7 +1,6 @@
 //  DataConversion.hpp
 //  finalproject
 
-
 #ifndef DataConversion_hpp
 #define DataConversion_hpp
 

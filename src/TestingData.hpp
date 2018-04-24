@@ -17,9 +17,8 @@ using namespace std;
 
 extern multimap<map<int,double>, vector<vector<int>>> posterior_probability_global;
 
-int get_best_estimate_of_image(vector<vector<int>> currentImage, map<int, vector<vector<double>> > class_to_feature_probability,map <int, double> class_to_class_probability);
+int get_best_estimate_of_image(vector<vector<int>> currentImage, map<int, vector<vector<double>> > class_to_feature_probability,map <int, double> class_to_class_probability, int currentLabel);
 
-multimap<vector<int>, vector<vector<int>>> test_data_function(multimap <int, vector< vector<int> >> associated_label_and_image_features_test,map<int, vector<vector<double>> > class_to_feature_probability,
+multimap<vector<int>, vector<vector<int>>> test_data_function(multimap <int, vector< vector<int> >> associated_label_and_image_features_test, map<int, vector<vector<double>> > class_to_feature_probability,
                                                               map <int, double> class_to_class_probability);
-
 #endif /* TestingData_hpp */

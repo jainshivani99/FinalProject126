@@ -14,7 +14,6 @@
 
 using namespace std;
 
-
 map<int, vector<vector<double>> > calculate_probability_of_training_data_features(multimap <int, vector< vector<int> >> associated_label_and_image_features);
 map <int, double> calculate_probability_of_training_data_classes(multimap <int, vector< vector<int> >> associated_label_and_image_features);
 

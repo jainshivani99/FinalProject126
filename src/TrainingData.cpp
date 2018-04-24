@@ -5,7 +5,8 @@
 #include "TrainingData.hpp"
 
 using namespace std;
-const int laplace_smoothing_factor = 3.0;
+const int laplace_smoothing_factor = 1.0;
+const int trainingExamplesSize = 5000;
 
 //total number of P(a|b) = 784 * 10
 //Input :images with features, labels
@@ -48,6 +49,8 @@ map<int, vector<vector<double>> > calculate_probability_of_training_data_feature
     //for one class
     for (map<int, vector<vector<vector<int>>>>::iterator mapIterator = organized_data.begin();
          mapIterator != organized_data.end(); mapIterator++) {
+        int currentClass = mapIterator->first;
+        
         vector<vector<int> > backgroundPixelCount;
         for (int i = 0; i < 28; i++) {
             vector<int> currentValue(28, 0);
@@ -66,35 +69,25 @@ map<int, vector<vector<double>> > calculate_probability_of_training_data_feature
         }
         
         //Access the nested vector in the map per class
-        for (map<int, vector<vector<double>>>::iterator pMapIterator = class_to_feature_probability.begin();
-             pMapIterator != class_to_feature_probability.end(); pMapIterator++) {
-            int currentClass = pMapIterator->first;
-            vector<vector<double>> classProbabilityMap = pMapIterator->second;
-            for (int i = 0; i < 28; i++) {
-                vector<double> currentValue(28, 0.0);
-                classProbabilityMap.push_back(currentValue);
-            }
-            //print classProbabilityMap
-            for (int i = 0; i < classProbabilityMap.size(); i++) {
-                for (int j = 0; j < classProbabilityMap[i].size(); j++) {
-                    cout << classProbabilityMap[i][j] << " ";
-                }
-                cout << "HI" << endl;
-            }
-            cout << classProbabilityMap.size() << endl;
-            /*Go through backgroundPixelCount and calculate the probability at each feature location, then store this value
-             in your map*/
-            //            for (int i = 0; i < 28; i++) {
-            //                for (int j = 0; j < 28; j++) {
-            //                    int currentCount = backgroundPixelCount[i][j];
-            //                    double featureProbability = static_cast<double> (laplace_smoothing_factor + currentCount) /
-            //                            (double) (2 * laplace_smoothing_factor
-            //                        + currentVectorOfImages.size());
-            //                    classProbabilityMap[i][j] = featureProbability;
-            //                }
-            //            }
-            //            class_to_feature_probability[currentClass] = classProbabilityMap;
+        vector<vector<double>> classProbabilityMap;
+        class_to_feature_probability[currentClass] = classProbabilityMap;
+        for (int i = 0; i < 28; i++) {
+            vector<double> currentValue(28, 0.0);
+            classProbabilityMap.push_back(currentValue);
         }
+        
+        /*Go through backgroundPixelCount and calculate the probability at each feature location, then store this value
+         in your map*/
+        for (int i = 0; i < 28; i++) {
+            for (int j = 0; j < 28; j++) {
+                int currentCount = backgroundPixelCount[i][j];
+                double featureProbability = static_cast<double> (laplace_smoothing_factor + currentCount) /
+                (double) (2 * laplace_smoothing_factor
+                          + currentVectorOfImages.size());
+                classProbabilityMap[i][j] = featureProbability;
+            }
+        }
+        class_to_feature_probability[currentClass] = classProbabilityMap;
     }
     return class_to_feature_probability;
 }

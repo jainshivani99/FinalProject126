@@ -5,27 +5,92 @@
 #include "TestingData.hpp"
 
 using namespace std;
-const int laplace_smoothing_factor = 3.0;
 
-//total number of P(a|b) = 784 * 10
-//Input :images with features, labels
-//Output: all P(a|b) stored in a map
-
-//Test all the images given in TrainingImages, that belong to a certain class we're testing
-//1. Go through each feature in an image and calculate the probability of it being in one class
-//2. Do this for all 10 classes
-//3. Do this for all features in an image
-//4. Store it in the map
-map<int, vector<vector<double>> > calculate_probability_of_training_data_features(multimap <int, vector< vector<int> >> associated_label_and_image_features) {
-    //initializing the map class_to_feature_probability
-    //key -class
-    //value - will store an image, where each element is the probability of each feature
-    map<int, vector<vector<double>>> class_to_feature_probability;
+int get_best_estimate_of_image(vector<vector<int>> currentImage, map<int, vector<vector<double>> > class_to_feature_probability,map <int, double> class_to_class_probability, int currentLabel) {
+    //go through class_to_feature_probability_test
+    //calculate log formula for each value in map
+    //store that into another map
+    //find max value in that map and return it
+    
+    map<int, vector<vector<double>>> class_to_feature_probability_test;
     for (int i = 0; i < 10; i++) {
-        vector<vector<double>> probabilityOfClass;
-        class_to_feature_probability.insert(make_pair(i, probabilityOfClass));
+        vector<vector<double>> probabilityOfClassTest(28, vector<double>(28));
+        class_to_feature_probability_test.insert(make_pair(i, probabilityOfClassTest));
     }
     
+    for (map<int, vector<vector<double>>>::iterator mapIterator = class_to_feature_probability.begin();
+         mapIterator != class_to_feature_probability.end(); mapIterator++) {
+        vector<vector<double> > testProbabilityValues;
+        //initializing the above nested vector
+        for (int i = 0; i < 28; i++) {
+            vector<double> currentValue(28, 0.0);
+            testProbabilityValues.push_back(currentValue);
+        }
+        int classLabel = mapIterator->first;
+        vector<vector<double> > trainingProbabilityImageValues = mapIterator->second;
+        double testFeatureProbability;
+        for (int i = 0; i < 28; i++) {
+            for (int j = 0; j < 28; j++) {
+                if (currentImage[i][j] == 0) {
+                    testFeatureProbability = trainingProbabilityImageValues[i][j];
+                    testProbabilityValues[i][j] = testFeatureProbability;
+                } else if (currentImage[i][j] == 1){
+                    testFeatureProbability = 1.0 - trainingProbabilityImageValues[i][j];
+                    testProbabilityValues[i][j] = testFeatureProbability;
+                }
+            }
+        }
+        class_to_feature_probability_test[classLabel] = testProbabilityValues;
+    }
+    
+    map<int, double> class_to_posterior_probability_test;
+    for (int i = 0; i < 10; i++) {
+        double x = 0.0;
+        class_to_posterior_probability_test.insert(make_pair(i, x));
+    }
+    
+    for (map<int, vector<vector<double>>>::iterator pMapIterator = class_to_feature_probability_test.begin();
+         pMapIterator != class_to_feature_probability_test.end(); pMapIterator++) {
+        vector<vector<double>> currentProbabilityMap = pMapIterator->second;
+        int currentLabel = pMapIterator->first;
+        double currentClassPrior = 0.0;
+        double posteriorProbability = 0.0;
+        currentClassPrior = class_to_class_probability[currentLabel];
+        for (int i = 0; i < 28; i++) {
+            for (int j = 0; j < 28; j++) {
+                double currentProbability = currentProbabilityMap[i][j];
+                posteriorProbability += log(currentProbability);
+            }
+        }
+        posteriorProbability += log(currentClassPrior);
+        //class_to_posterior_probability_test[currentLabel] = abs(posteriorProbability);
+        class_to_posterior_probability_test[currentLabel] = posteriorProbability;
+    }
+    
+    double currentMax = class_to_posterior_probability_test[0];
+    int currentClass = 0;
+    
+    for (int i = 0; i < class_to_posterior_probability_test.size(); i++) {
+        if (class_to_posterior_probability_test[i] > currentMax) {
+            currentMax = class_to_posterior_probability_test[i];
+            currentClass = i;
+        }
+    }
+    //if the best estimate value is equal to the actual label of the image (it was correctly classified), then add it to
+    // the global variable to print prototypicals
+    if (currentClass == currentLabel) {
+        //multimap<int, map<int,double>> actual_class_and_probability;
+        //actual_class_and_probability.insert(make_pair(currentLabel, class_to_posterior_probability_test));
+        posterior_probability_global.insert(make_pair(class_to_posterior_probability_test, currentImage));
+    }
+    
+    return currentClass;
+    
+};
+
+multimap<vector<int>, vector<vector<int>>> test_data_function(multimap <int, vector< vector<int> >> associated_label_and_image_features_test,
+                                                              map<int, vector<vector<double>> > class_to_feature_probability,
+                                                              map <int, double> class_to_class_probability) {
     map<int, vector <vector<vector<int>>> > organized_data;
     //initializing the map organized_data
     //key- class
@@ -38,77 +103,33 @@ map<int, vector<vector<double>> > calculate_probability_of_training_data_feature
     int currentClassLabel = 0;
     vector<vector<int>> currentClassImage;
     //adding values to the map organized_data
-    for (multimap<int, vector<vector<int>>>::iterator mapIterator = associated_label_and_image_features.begin();
-         mapIterator != associated_label_and_image_features.end(); mapIterator++) {
+    for (multimap<int, vector<vector<int>>>::iterator mapIterator = associated_label_and_image_features_test.begin();
+         mapIterator != associated_label_and_image_features_test.end(); mapIterator++) {
         currentClassLabel = mapIterator->first;
         currentClassImage = mapIterator->second;
         organized_data[currentClassLabel].push_back(currentClassImage);
     }
     
-    //for one class
+    //key-best estimate, actual class label
+    //value- image in binary
+    multimap<vector<int>, vector<vector<int>>> best_estimate_values;
+    
+    //go through each image in organized_data
     for (map<int, vector<vector<vector<int>>>>::iterator mapIterator = organized_data.begin();
          mapIterator != organized_data.end(); mapIterator++) {
-        vector<vector<int> > backgroundPixelCount;
-        for (int i = 0; i < 28; i++) {
-            vector<int> currentValue(28, 0);
-            backgroundPixelCount.push_back(currentValue);
-        }
-        vector<vector<vector<int> >> currentVectorOfImages = mapIterator->second;
-        for (int j = 0; j < currentVectorOfImages.size(); j++) {
-            vector<vector<int>> currentImage = currentVectorOfImages[j];
-            for (int i = 0; i < 28; i++) {
-                for (int j = 0; j < 28; j++) {
-                    if (currentImage[i][j] == 0) {
-                        backgroundPixelCount[i][j]++;
-                    }
-                }
-            }
-        }
-        
-        //Access the nested vector in the map per class
-        for (map<int, vector<vector<double>>>::iterator pMapIterator = class_to_feature_probability.begin();
-             pMapIterator != class_to_feature_probability.end(); pMapIterator++) {
-            int currentClass = pMapIterator->first;
-            vector<vector<double>> classProbabilityMap = pMapIterator->second;
-            for (int i = 0; i < 28; i++) {
-                vector<double> currentValue(28, 0.0);
-                classProbabilityMap.push_back(currentValue);
-            }
-            //print classProbabilityMap
-            for (int i = 0; i < classProbabilityMap.size(); i++) {
-                for (int j = 0; j < classProbabilityMap[i].size(); j++) {
-                    cout << classProbabilityMap[i][j] << " ";
-                }
-                cout << "HI" << endl;
-            }
-            cout << classProbabilityMap.size() << endl;
-            /*Go through backgroundPixelCount and calculate the probability at each feature location, then store this value
-             in your map*/
-            //            for (int i = 0; i < 28; i++) {
-            //                for (int j = 0; j < 28; j++) {
-            //                    int currentCount = backgroundPixelCount[i][j];
-            //                    double featureProbability = static_cast<double> (laplace_smoothing_factor + currentCount) /
-            //                            (double) (2 * laplace_smoothing_factor
-            //                        + currentVectorOfImages.size());
-            //                    classProbabilityMap[i][j] = featureProbability;
-            //                }
-            //            }
-            //            class_to_feature_probability[currentClass] = classProbabilityMap;
-        }
-    }
-    return class_to_feature_probability;
-}
-
-map <int, double> calculate_probability_of_training_data_classes(multimap <int, vector< vector<int> >> associated_label_and_image_features) {
-    map <int, double> class_to_class_probability;
-    int totalSameLabel;
-    for (multimap<int, vector<vector<int>>>::iterator mapIterator = associated_label_and_image_features.begin();
-         mapIterator != associated_label_and_image_features.end(); mapIterator++) {
         int currentLabel = mapIterator->first;
-        totalSameLabel = associated_label_and_image_features.count(currentLabel);
-        int trainingExamplesSize = associated_label_and_image_features.size();
-        double classProbability = static_cast<double>(totalSameLabel) / (double) (trainingExamplesSize);
-        class_to_class_probability.insert(make_pair(currentLabel, classProbability));
+        vector<vector<vector<int> >> currentVectorOfImages = mapIterator->second;
+        //for one class
+        for (int j = 0; j < currentVectorOfImages.size(); j++) {
+            vector<vector<int>> currentImage(28, vector<int>(28));
+            currentImage = currentVectorOfImages[j];
+            int bestEstimateValue = get_best_estimate_of_image(currentImage, class_to_feature_probability, class_to_class_probability, currentLabel);
+            vector<int> classValues;
+            classValues.push_back(bestEstimateValue); //first element
+            classValues.push_back(currentLabel); //second element
+            best_estimate_values.insert(make_pair(classValues, currentImage));
+        }
     }
-    return class_to_class_probability;
-}
+    return best_estimate_values;
+};
+

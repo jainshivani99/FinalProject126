@@ -5,10 +5,9 @@
 
 using namespace std;
 
-/*This function gets all the images and labels for training data, and groups them in a multimap together where they are sorted
- by their key
- key- class they belong to
- value- the image itself
+/*This function gets all the images and labels for training data, and groups them in a multimap together where they are sorted by their key
+key- class they belong to
+value- the image itself
  */
 multimap <int, vector< vector<char> >> get_labels_and_images(string fileLabels, string fileImages) {
     //multimap that stores the label and associated image
@@ -29,9 +28,9 @@ multimap <int, vector< vector<char> >> get_labels_and_images(string fileLabels, 
         for (int i = 0; i < 28; i++) {
             for (int j = 0; j < 29; j++) {
                 inFile2.get(imageChar);
-                //                if (imageChar == '\n') {
-                //                    continue;
-                //                }
+                if (imageChar == '\n') {
+                    continue;
+                }
                 fullImage[i][j] = imageChar;
             }
         }
@@ -73,4 +72,3 @@ multimap <int, vector< vector<int> >> convert_pixels_to_features(multimap <int, 
     }
     return associated_label_and_image_features;
 }
-
