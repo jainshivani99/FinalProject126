@@ -1,14 +1,22 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxGui.h"
 
 class ofApp : public ofBaseApp{
 
 	public:
         ofSoundPlayer soundPlayer;
+        ofPolyline line;
+//        ofxPanel gui;
+//        ofxIntSlider countX;
+//        ofxFloatSlider stepX;
+//        ofxFloatSlider twistX;
+    
 		void setup();
 		void update();
 		void draw();
+        void exit();
 
 		void keyPressed(int key);
 		void keyReleased(int key);
