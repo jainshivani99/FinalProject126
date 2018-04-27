@@ -19,15 +19,8 @@ class ofApp : public ofBaseApp{
         multimap<map<int,double>, vector<vector<int>>> posterior_probability_global;
         ofSoundPlayer soundPlayer;
         ofPolyline line;
-        bool enter_key_pressed;
         AppState current_state_= DRAW_CANVAS;
-    
-        ofRectangle button;
-        bool bButton;
-//        ofxPanel gui;
-//        ofxIntSlider countX;
-//        ofxFloatSlider stepX;
-//        ofxFloatSlider twistX;
+        ofImage myImage;
     
 		void setup();
 		void update();

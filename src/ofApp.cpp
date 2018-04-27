@@ -8,6 +8,7 @@ void ofApp::setup(){
     
     //soundPlayer.load("Titanic.mp3");
     //soundPlayer.play();
+    //soundPlayer.setVolume(0.1f);
 }
 
 //--------------------------------------------------------------
@@ -29,14 +30,17 @@ void ofApp::keyPressed(int key){
     int upper_key = toupper(key); // Standardize on upper case
     if (current_state_ == DRAW_CANVAS) {
         if (upper_key == OF_KEY_RETURN) {
-            cout << "Enter key pressed 2" << endl;
-            enter_key_pressed = true;
+            //cout << "Enter key pressed 2" << endl;
+            
+            //process the picture the user drew
+            myImage.grabScreen(150, 150, 700, 600);
+            myImage.save("User.png");
             current_state_ = RESULT;
-            //detectPicture();
+            detectPicture();
         }
     } else if (current_state_ == RESULT) {
         if (upper_key == 'Q') {
-            cout << "Quit key pressed 2" << endl;
+            //cout << "Quit key pressed 2" << endl;
             current_state_ = DRAW_CANVAS;
         }
     }
@@ -118,13 +122,10 @@ void ofApp::drawCanvasMode() {
     string enter_message = "Press Enter to Submit";
     ofDrawBitmapString(enter_message, 870, 720);
     
-    //displays that the enter button was pressed - NOT NEEDED
-    if (enter_key_pressed) {
-        ofSetColor(0, 0, 0);
-        string key_pressed_message = "Enter Key Pressed";
-        ofDrawBitmapString(key_pressed_message, 870, 700);
-        //enter_key_pressed = false;
-    }
+    //displays message to clear the canvas
+    string clear_message = "Click anywhere to clear";
+    ofDrawBitmapString(clear_message, 870, 670);
+    
 }
 //--------------------------------------------------------------
 void ofApp::drawResultMode() {
@@ -144,67 +145,66 @@ void ofApp::detectPicture() {
     //function that initially gets the data and organizes it
     //this is first done for the training data
     multimap <int, vector< vector<char> >> associated_label_and_image = get_labels_and_images("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/traininglabels", "/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/trainingimages");
-    //    for (multimap<int, vector<vector<char>>>::const_iterator it = associated_label_and_image.begin();
-    //        it != associated_label_and_image.end(); ++it) {
-    //        cout << it->first << endl;
-    //        vector<vector<char> > currentImage = it->second;
-    //        for (int i = 0; i < currentImage.size(); i++)
-    //        {
-    //            for (int j = 0; j < currentImage[i].size(); j++)
-    //            {
-    //                cout << currentImage[i][j];
-    //            }
-    //            cout << endl;
-    //        }
-    //
-    //    }
+//        for (multimap<int, vector<vector<char>>>::const_iterator it = associated_label_and_image.begin();
+//            it != associated_label_and_image.end(); ++it) {
+//            cout << it->first << endl;
+//            vector<vector<char> > currentImage = it->second;
+//            for (int i = 0; i < currentImage.size(); i++)
+//            {
+//                for (int j = 0; j < currentImage[i].size(); j++)
+//                {
+//                    cout << currentImage[i][j];
+//                }
+//                cout << endl;
+//            }
+//
+//        }
     
-    
+
     //function that converts the pixels of images in training data to features
     multimap <int, vector< vector<int> >> associated_label_and_image_features = convert_pixels_to_features(associated_label_and_image);
-    //    for (multimap<int, vector<vector<int>>>::const_iterator it = associated_label_and_image_features.begin(); it != associated_label_and_image_features.end(); ++it) {
-    //        cout << it->first << endl;
-    //        vector<vector<int> > currentImage = it->second;
-    //        for (int i = 0; i < currentImage.size(); i++)
-    //        {
-    //            for (int j = 0; j < currentImage[i].size(); j++)
-    //            {
-    //                cout << currentImage[i][j];
-    //            }
-    //            cout << endl;
-    //        }
-    //
-    //    }
-    
-    
+//        for (multimap<int, vector<vector<int>>>::const_iterator it = associated_label_and_image_features.begin(); it != associated_label_and_image_features.end(); ++it) {
+//            cout << it->first << endl;
+//            vector<vector<int> > currentImage = it->second;
+//            for (int i = 0; i < currentImage.size(); i++)
+//            {
+//                for (int j = 0; j < currentImage[i].size(); j++)
+//                {
+//                    cout << currentImage[i][j];
+//                }
+//                cout << endl;
+//            }
+//
+//        }
+
+ 
     //function that calculates the probability of each feature for each class
     map<int, vector<vector<double>> > class_to_feature_probability =
     calculate_probability_of_training_data_features(associated_label_and_image_features);
-    //    for (map<int, vector<vector<double>>>::const_iterator it = class_to_feature_probability.begin(); it != class_to_feature_probability.end(); ++it) {
-    //        cout << it->first << endl;
-    //        vector<vector<double> > currentProbabilityImage = it->second;
-    //        for (int i = 0; i < currentProbabilityImage.size(); i++)
-    //        {
-    //            for (int j = 0; j < currentProbabilityImage[i].size(); j++)
-    //            {
-    //                cout << currentProbabilityImage[i][j] << " ";
-    //            }
-    //            cout << endl;
-    //        }
-    //    }
+//        for (map<int, vector<vector<double>>>::const_iterator it = class_to_feature_probability.begin(); it != class_to_feature_probability.end(); ++it) {
+//            cout << it->first << endl;
+//            vector<vector<double> > currentProbabilityImage = it->second;
+//            for (int i = 0; i < currentProbabilityImage.size(); i++)
+//            {
+//                for (int j = 0; j < currentProbabilityImage[i].size(); j++)
+//                {
+//                    cout << currentProbabilityImage[i][j] << " ";
+//                }
+//                cout << endl;
+//            }
+//        }
     
     
     //function that calculates the probability of each class
     map<int, double> class_to_class_probability = calculate_probability_of_training_data_classes(associated_label_and_image_features);
     
-    
+/*
     //*Test Data*//*
     
     //function that initially gets the data and organizes it
     // this done for test data, where only the images are available (labels are still kept in the map)
     multimap <int, vector< vector<char> > > associated_label_and_image_test =
-    get_labels_and_images("/Users/shivanijain/CLionProjects/naivebayes-jainshivani99/data/testlabels",
-                          "/Users/shivanijain/CLionProjects/naivebayes-jainshivani99/data/testimages");
+    get_labels_and_images("/Users/shivanijain/CLionProjects/naivebayes-jainshivani99/data/testlabels", "/Users/shivanijain/CLionProjects/naivebayes-jainshivani99/data/testimages");
     //    for (multimap<int, vector<vector<char>>>::const_iterator it = associated_label_and_image_test.begin();
     //         it != associated_label_and_image_test.end(); ++it) {
     //        cout << it->first << endl;
@@ -279,5 +279,5 @@ void ofApp::detectPicture() {
     //        }
     //
     //    }
-
+*/
 }
