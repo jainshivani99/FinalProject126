@@ -2,12 +2,20 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
+#include "DataConversion.hpp"
+#include "TrainingData.hpp"
+#include "TestingData.hpp"
+#include "DataEvaluation.hpp"
 
 class ofApp : public ofBaseApp{
 
 	public:
+        multimap<map<int,double>, vector<vector<int>>> posterior_probability_global;
         ofSoundPlayer soundPlayer;
         ofPolyline line;
+        bool enter_key_pressed;
+        ofRectangle button;
+        bool bButton;
 //        ofxPanel gui;
 //        ofxIntSlider countX;
 //        ofxFloatSlider stepX;
@@ -17,6 +25,7 @@ class ofApp : public ofBaseApp{
 		void update();
 		void draw();
         void exit();
+        void detectPicture();
 
 		void keyPressed(int key);
 		void keyReleased(int key);
