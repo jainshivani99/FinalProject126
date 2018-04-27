@@ -7,6 +7,12 @@
 #include "TestingData.hpp"
 #include "DataEvaluation.hpp"
 
+// Enum to represent the current state of the app
+enum AppState {
+    DRAW_CANVAS = 0,
+    RESULT
+};
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -14,6 +20,8 @@ class ofApp : public ofBaseApp{
         ofSoundPlayer soundPlayer;
         ofPolyline line;
         bool enter_key_pressed;
+        AppState current_state_= DRAW_CANVAS;
+    
         ofRectangle button;
         bool bButton;
 //        ofxPanel gui;
@@ -25,6 +33,8 @@ class ofApp : public ofBaseApp{
 		void update();
 		void draw();
         void exit();
+        void drawCanvasMode();
+        void drawResultMode();
         void detectPicture();
 
 		void keyPressed(int key);

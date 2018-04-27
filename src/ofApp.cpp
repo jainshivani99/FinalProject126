@@ -6,14 +6,8 @@ void ofApp::setup(){
     ofBackground(173, 216, 230);
     srand(static_cast<unsigned>(time(0))); // Seed random with current time
     
-    //gui.setup();
-    //ofSetFrameRate(60);
-    //gui.loadFromFile("settings.xml");
     //soundPlayer.load("Titanic.mp3");
     //soundPlayer.play();
-    
-//    button.set(870,700,130,30);
-//    bButton = false;
 }
 
 //--------------------------------------------------------------
@@ -23,40 +17,28 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofSetColor(0, 0, 0);
-    string welcome_message = "Please draw a number on the canvas";
-    ofDrawBitmapString(welcome_message, 100, 100);
-    
-    //features to set up the canvas
-    ofSetColor(255,228,196);
-    ofFill();
-    ofDrawRectangle(150,150,700,600);
-    
-    //features to draw the line
-    ofSetColor(0,0,0);
-    ofSetLineWidth(10.0);
-    line.draw();
-    
-    string enter_message = "Press Enter to Submit";
-    ofDrawBitmapString(enter_message, 870, 720);
-    //ofSetColor(220,220,220);
-    //ofRect(button);
-    
-    if (enter_key_pressed) {
-        ofSetColor(0, 0, 0);
-        string key_pressed_message = "Enter Key Pressed";
-        ofDrawBitmapString(key_pressed_message, 870, 700);
-        //enter_key_pressed = false;
+    if (current_state_ == DRAW_CANVAS) {
+        drawCanvasMode();
+    } else if(current_state_ == RESULT) {
+        drawResultMode();
     }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     int upper_key = toupper(key); // Standardize on upper case
-    if (upper_key == OF_KEY_RETURN) {
-        cout << "Enter key pressed 2" << endl;
-        enter_key_pressed = true;
-        //detectPicture();
+    if (current_state_ == DRAW_CANVAS) {
+        if (upper_key == OF_KEY_RETURN) {
+            cout << "Enter key pressed 2" << endl;
+            enter_key_pressed = true;
+            current_state_ = RESULT;
+            //detectPicture();
+        }
+    } else if (current_state_ == RESULT) {
+        if (upper_key == 'Q') {
+            cout << "Quit key pressed 2" << endl;
+            current_state_ = DRAW_CANVAS;
+        }
     }
 }
 
@@ -80,10 +62,6 @@ void ofApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
     line.clear();
-    
-//    if(button.distance(ofPoint) {
-//        bButton = !bButton;
-//    }
 }
 
 //--------------------------------------------------------------
@@ -117,7 +95,47 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 //--------------------------------------------------------------
 void ofApp::exit() {
-    //gui.saveToFile("settings.xml");
+    
+}
+//--------------------------------------------------------------
+void ofApp::drawCanvasMode() {
+    //displays welcome message at the top of the screen
+    ofSetColor(0, 0, 0);
+    string welcome_message = "Please draw a number on the canvas";
+    ofDrawBitmapString(welcome_message, 100, 100);
+    
+    //features to set up the canvas
+    ofSetColor(255,228,196);
+    ofFill();
+    ofDrawRectangle(150,150,700,600);
+    
+    //features to draw the line
+    ofSetColor(0,0,0);
+    ofSetLineWidth(10.0);
+    line.draw();
+    
+    //displays message to press enter once to submit the picture
+    string enter_message = "Press Enter to Submit";
+    ofDrawBitmapString(enter_message, 870, 720);
+    
+    //displays that the enter button was pressed - NOT NEEDED
+    if (enter_key_pressed) {
+        ofSetColor(0, 0, 0);
+        string key_pressed_message = "Enter Key Pressed";
+        ofDrawBitmapString(key_pressed_message, 870, 700);
+        //enter_key_pressed = false;
+    }
+}
+//--------------------------------------------------------------
+void ofApp::drawResultMode() {
+    //displays submission message at the top of the screen
+    ofSetColor(0, 0, 0);
+    string submission_message = "Results of your submission:";
+    ofDrawBitmapString(submission_message, 100, 100);
+    
+    //displays message to press Q to exit result mode
+    string quit_message = "Press Q to exit";
+    ofDrawBitmapString(quit_message, 870, 720);
 }
 //--------------------------------------------------------------
 void ofApp::detectPicture() {
