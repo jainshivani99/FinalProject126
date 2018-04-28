@@ -5,7 +5,6 @@
 #include "DataConversion.hpp"
 #include "TrainingData.hpp"
 #include "TestingData.hpp"
-#include "DataEvaluation.hpp"
 
 
 // Enum to represent the current state of the app

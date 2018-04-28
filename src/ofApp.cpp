@@ -34,9 +34,9 @@ void ofApp::keyPressed(int key){
             
             //process the picture the user drew
             myImage.grabScreen(150, 150, 588, 588);
-            vector<vector<char>> image_in_char = convertImage();
+            //vector<vector<char>> image_in_char = convertImage();
             current_state_ = RESULT;
-            int bestEstimate = detectPicture(image_in_char);
+            //int bestEstimate = detectPicture(image_in_char);
         }
     } else if (current_state_ == RESULT) {
         if (upper_key == 'Q') {
