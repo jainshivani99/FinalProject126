@@ -34,9 +34,10 @@ void ofApp::keyPressed(int key){
             
             //process the picture the user drew
             myImage.grabScreen(150, 150, 588, 588);
-            //vector<vector<char>> image_in_char = convertImage();
+            //myImage.save("User.png");
+            vector<vector<char>> image_in_char = convertImage();
             current_state_ = RESULT;
-            //int bestEstimate = detectPicture(image_in_char);
+            int bestEstimate = detectPicture(image_in_char);
         }
     } else if (current_state_ == RESULT) {
         if (upper_key == 'Q') {
@@ -115,7 +116,7 @@ void ofApp::drawCanvasMode() {
     
     //features to draw the line
     ofSetColor(0,0,0);
-    ofSetLineWidth(10.0);
+    ofSetLineWidth(60.0);
     line.draw();
     
     //displays message to press enter once to submit the picture
@@ -147,15 +148,34 @@ vector<vector<char>> ofApp::convertImage() {
     for (int i = 0; i < 28; i++) {
         for (int j = 0; j < 28; j++) {
             int sum = 0;
-            for (int r = 0; r < 588; r++) {
-                for (int c = 0; c < 588; c++) {
+            for (int r = i * 21; r < (i * 21) + 21; r++) {
+                for (int c = j * 21; c < (j * 21) + 21; c++) {
                     int index = 588 * r + c;
                     sum += pixels[index];
                 }
             }
-            
+            double average = sum / 441.0;
+            char current_char;
+            if (average >= 0 && average <= 50.0) {
+                current_char = '#';
+            } else if (average >= 50.0 && average <= 100.0) {
+                current_char = '+';
+            } else if (average >= 100.0) {
+                current_char = ' ';
+            }
+            image_in_char[i][j] = current_char;
         }
     }
+    //prints out the image to test
+    for (int i = 0; i < image_in_char.size(); i++) {
+        for (int j = 0; j < image_in_char[i].size(); j++)
+        {
+            cout << image_in_char[i][j];
+        }
+        cout << endl;
+    }
+    
+    return image_in_char;
 }
 //--------------------------------------------------------------
 int ofApp::detectPicture(vector<vector<char>> image_in_char) {
@@ -183,5 +203,6 @@ int ofApp::detectPicture(vector<vector<char>> image_in_char) {
     //function that returns the best estimate of the image
     int bestEstimate = get_best_estimate_of_image(image_in_features, class_to_feature_probability, class_to_class_probability);
     
+    cout << bestEstimate << endl;
     return bestEstimate;
 }
