@@ -33,10 +33,10 @@ void ofApp::keyPressed(int key){
             //cout << "Enter key pressed 2" << endl;
             
             //process the picture the user drew
-            myImage.grabScreen(150, 150, 700, 600);
-            myImage.save("User.png");
+            myImage.grabScreen(150, 150, 588, 588);
+            vector<vector<char>> image_in_char = convertImage();
             current_state_ = RESULT;
-            detectPicture();
+            int bestEstimate = detectPicture(image_in_char);
         }
     } else if (current_state_ == RESULT) {
         if (upper_key == 'Q') {
@@ -111,7 +111,7 @@ void ofApp::drawCanvasMode() {
     //features to set up the canvas
     ofSetColor(255,228,196);
     ofFill();
-    ofDrawRectangle(150,150,700,600);
+    ofDrawRectangle(150,150,588,588);
     
     //features to draw the line
     ofSetColor(0,0,0);
@@ -139,145 +139,49 @@ void ofApp::drawResultMode() {
     ofDrawBitmapString(quit_message, 870, 720);
 }
 //--------------------------------------------------------------
-void ofApp::detectPicture() {
+vector<vector<char>> ofApp::convertImage() {
+    myImage.setImageType(OF_IMAGE_GRAYSCALE);
+    vector< vector<char> > image_in_char(28, vector<char> (28));
+    ofPixels & pixels = myImage.getPixels();
+    //going through 2D vector image_in_char
+    for (int i = 0; i < 28; i++) {
+        for (int j = 0; j < 28; j++) {
+            int sum = 0;
+            for (int r = 0; r < 588; r++) {
+                for (int c = 0; c < 588; c++) {
+                    int index = 588 * r + c;
+                    sum += pixels[index];
+                }
+            }
+            
+        }
+    }
+}
+//--------------------------------------------------------------
+int ofApp::detectPicture(vector<vector<char>> image_in_char) {
+    
     /*Training Data*/
     
-    //function that initially gets the data and organizes it
-    //this is first done for the training data
+    //function that initially gets the training data and organizes it
     multimap <int, vector< vector<char> >> associated_label_and_image = get_labels_and_images("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/traininglabels", "/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/trainingimages");
-//        for (multimap<int, vector<vector<char>>>::const_iterator it = associated_label_and_image.begin();
-//            it != associated_label_and_image.end(); ++it) {
-//            cout << it->first << endl;
-//            vector<vector<char> > currentImage = it->second;
-//            for (int i = 0; i < currentImage.size(); i++)
-//            {
-//                for (int j = 0; j < currentImage[i].size(); j++)
-//                {
-//                    cout << currentImage[i][j];
-//                }
-//                cout << endl;
-//            }
-//
-//        }
-    
 
     //function that converts the pixels of images in training data to features
     multimap <int, vector< vector<int> >> associated_label_and_image_features = convert_pixels_to_features(associated_label_and_image);
-//        for (multimap<int, vector<vector<int>>>::const_iterator it = associated_label_and_image_features.begin(); it != associated_label_and_image_features.end(); ++it) {
-//            cout << it->first << endl;
-//            vector<vector<int> > currentImage = it->second;
-//            for (int i = 0; i < currentImage.size(); i++)
-//            {
-//                for (int j = 0; j < currentImage[i].size(); j++)
-//                {
-//                    cout << currentImage[i][j];
-//                }
-//                cout << endl;
-//            }
-//
-//        }
 
- 
     //function that calculates the probability of each feature for each class
     map<int, vector<vector<double>> > class_to_feature_probability =
     calculate_probability_of_training_data_features(associated_label_and_image_features);
-//        for (map<int, vector<vector<double>>>::const_iterator it = class_to_feature_probability.begin(); it != class_to_feature_probability.end(); ++it) {
-//            cout << it->first << endl;
-//            vector<vector<double> > currentProbabilityImage = it->second;
-//            for (int i = 0; i < currentProbabilityImage.size(); i++)
-//            {
-//                for (int j = 0; j < currentProbabilityImage[i].size(); j++)
-//                {
-//                    cout << currentProbabilityImage[i][j] << " ";
-//                }
-//                cout << endl;
-//            }
-//        }
-    
     
     //function that calculates the probability of each class
     map<int, double> class_to_class_probability = calculate_probability_of_training_data_classes(associated_label_and_image_features);
     
-/*
-    //*Test Data*//*
+    /*Test Data*/
     
-    //function that initially gets the data and organizes it
-    // this done for test data, where only the images are available (labels are still kept in the map)
-    multimap <int, vector< vector<char> > > associated_label_and_image_test =
-    get_labels_and_images("/Users/shivanijain/CLionProjects/naivebayes-jainshivani99/data/testlabels", "/Users/shivanijain/CLionProjects/naivebayes-jainshivani99/data/testimages");
-    //    for (multimap<int, vector<vector<char>>>::const_iterator it = associated_label_and_image_test.begin();
-    //         it != associated_label_and_image_test.end(); ++it) {
-    //        cout << it->first << endl;
-    //        vector<vector<char> > currentImage = it->second;
-    //        for (int i = 0; i < currentImage.size(); i++)
-    //        {
-    //            for (int j = 0; j < currentImage[i].size(); j++)
-    //            {
-    //                cout << currentImage[i][j];
-    //            }
-    //            cout << endl;
-    //        }
-    //
-    //    }
+    //function that converts the pixels of an image in test data to features
+    vector<vector<int>> image_in_features = single_image_convert_pixels_to_features(image_in_char);
     
+    //function that returns the best estimate of the image
+    int bestEstimate = get_best_estimate_of_image(image_in_features, class_to_feature_probability, class_to_class_probability);
     
-    //function that converts the pixels of images in test data to features
-    multimap <int, vector< vector<int> > > associated_label_and_image_features_test =
-    convert_pixels_to_features(associated_label_and_image_test);
-    //    for (multimap<int, vector<vector<int>>>::const_iterator it = associated_label_and_image_features_test.begin(); it != associated_label_and_image_features_test.end(); ++it) {
-    //        cout << it->first << endl;
-    //        vector<vector<int> > currentImage = it->second;
-    //        for (int i = 0; i < currentImage.size(); i++)
-    //        {
-    //            for (int j = 0; j < currentImage[i].size(); j++)
-    //            {
-    //                cout << currentImage[i][j];
-    //            }
-    //            cout << endl;
-    //        }
-    //
-    //    }
-    
-    
-    multimap <vector<int>, vector< vector<int>>> best_estimate_values = test_data_function(associated_label_and_image_features_test, class_to_feature_probability,
-                                                                                           class_to_class_probability);
-    //    for (multimap< vector<int>, vector<vector<int>>>::const_iterator it = best_estimate_values.begin(); it != best_estimate_values.end(); ++it) {
-    //        vector<int> classValues = it->first;
-    //        for (vector<int>::const_iterator i = classValues.begin(); i != classValues.end(); ++i) {
-    //            cout << *i << endl;
-    //        }
-    //        vector<vector<int> > currentImage = it->second;
-    //        for (int i = 0; i < currentImage.size(); i++)
-    //        {
-    //            for (int j = 0; j < currentImage[i].size(); j++)
-    //            {
-    //                cout << currentImage[i][j];
-    //            }
-    //            cout << endl;
-    //        }
-    //    }
-    
-    
-    //*Data Evaluation*//*
-    
-    
-    vector<vector<double>> percentage_confusion_matrix = create_confusion_matrix(best_estimate_values);
-    print_confusion_matrix(percentage_confusion_matrix);
-    multimap<int, vector<vector<int>>> posterior_probability_images = calculate_prototypicals_per_class(posterior_probability_global);
-    print_prototypicals_per_class(posterior_probability_images);
-    
-    //    for (multimap<int, vector<vector<int>>>::const_iterator it = posterior_probability_images.begin(); it != posterior_probability_images.end(); ++it) {
-    //        cout << it->first << endl;
-    //        vector<vector<int> > currentImage = it->second;
-    //        for (int i = 0; i < currentImage.size(); i++)
-    //        {
-    //            for (int j = 0; j < currentImage[i].size(); j++)
-    //            {
-    //                cout << currentImage[i][j];
-    //            }
-    //            cout << endl;
-    //        }
-    //
-    //    }
-*/
+    return bestEstimate;
 }

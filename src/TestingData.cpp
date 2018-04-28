@@ -6,7 +6,30 @@
 
 using namespace std;
 
-int get_best_estimate_of_image(vector<vector<int>> currentImage, map<int, vector<vector<double>> > class_to_feature_probability,map <int, double> class_to_class_probability, int currentLabel) {
+//Function that takes a an image as input and converts its pixels into features
+//Returns the image with its features
+vector<vector<int>> single_image_convert_pixels_to_features(vector<vector<char>> image_in_char) {
+    vector<vector<int>> image_in_features(28, vector<int>(28));
+    
+    for (int i = 0; i < 28; i++) {
+        for (int j = 0; j < 28; j++) {
+            char currentChar = image_in_char[i][j];
+            if (currentChar == ' ') {
+                int currentCharValue = 0;
+                image_in_features[i][j] = currentCharValue;
+            } else if (currentChar == '+') {
+                int currentCharValue = 1;
+                image_in_features[i][j] = currentCharValue;
+            } else if (currentChar == '#') {
+                int currentCharValue = 1;
+                image_in_features[i][j] = currentCharValue;
+            }
+        }
+    }
+    return image_in_features;
+}
+
+int get_best_estimate_of_image(vector<vector<int>> currentImage, map<int, vector<vector<double>> > class_to_feature_probability,map <int, double> class_to_class_probability) {
     //go through class_to_feature_probability_test
     //calculate log formula for each value in map
     //store that into another map
@@ -63,7 +86,6 @@ int get_best_estimate_of_image(vector<vector<int>> currentImage, map<int, vector
             }
         }
         posteriorProbability += log(currentClassPrior);
-        //class_to_posterior_probability_test[currentLabel] = abs(posteriorProbability);
         class_to_posterior_probability_test[currentLabel] = posteriorProbability;
     }
     
@@ -76,60 +98,8 @@ int get_best_estimate_of_image(vector<vector<int>> currentImage, map<int, vector
             currentClass = i;
         }
     }
-    //if the best estimate value is equal to the actual label of the image (it was correctly classified), then add it to
-    // the global variable to print prototypicals
-    if (currentClass == currentLabel) {
-        //multimap<int, map<int,double>> actual_class_and_probability;
-        //actual_class_and_probability.insert(make_pair(currentLabel, class_to_posterior_probability_test));
-        posterior_probability_global.insert(make_pair(class_to_posterior_probability_test, currentImage));
-    }
-    
-    return currentClass;
-    
-};
+    return currentClass;    
+}
 
-multimap<vector<int>, vector<vector<int>>> test_data_function(multimap <int, vector< vector<int> >> associated_label_and_image_features_test,
-                                                              map<int, vector<vector<double>> > class_to_feature_probability,
-                                                              map <int, double> class_to_class_probability) {
-    map<int, vector <vector<vector<int>>> > organized_data;
-    //initializing the map organized_data
-    //key- class
-    //value- vector of images that belong to a class (label)
-    for (int i = 0; i < 10; i++) {
-        vector <vector<vector<int>> > vectorOfImages;
-        organized_data.insert(make_pair(i, vectorOfImages));
-    }
-    
-    int currentClassLabel = 0;
-    vector<vector<int>> currentClassImage;
-    //adding values to the map organized_data
-    for (multimap<int, vector<vector<int>>>::iterator mapIterator = associated_label_and_image_features_test.begin();
-         mapIterator != associated_label_and_image_features_test.end(); mapIterator++) {
-        currentClassLabel = mapIterator->first;
-        currentClassImage = mapIterator->second;
-        organized_data[currentClassLabel].push_back(currentClassImage);
-    }
-    
-    //key-best estimate, actual class label
-    //value- image in binary
-    multimap<vector<int>, vector<vector<int>>> best_estimate_values;
-    
-    //go through each image in organized_data
-    for (map<int, vector<vector<vector<int>>>>::iterator mapIterator = organized_data.begin();
-         mapIterator != organized_data.end(); mapIterator++) {
-        int currentLabel = mapIterator->first;
-        vector<vector<vector<int> >> currentVectorOfImages = mapIterator->second;
-        //for one class
-        for (int j = 0; j < currentVectorOfImages.size(); j++) {
-            vector<vector<int>> currentImage(28, vector<int>(28));
-            currentImage = currentVectorOfImages[j];
-            int bestEstimateValue = get_best_estimate_of_image(currentImage, class_to_feature_probability, class_to_class_probability, currentLabel);
-            vector<int> classValues;
-            classValues.push_back(bestEstimateValue); //first element
-            classValues.push_back(currentLabel); //second element
-            best_estimate_values.insert(make_pair(classValues, currentImage));
-        }
-    }
-    return best_estimate_values;
-};
+
 

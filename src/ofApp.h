@@ -7,6 +7,7 @@
 #include "TestingData.hpp"
 #include "DataEvaluation.hpp"
 
+
 // Enum to represent the current state of the app
 enum AppState {
     DRAW_CANVAS = 0,
@@ -28,7 +29,8 @@ class ofApp : public ofBaseApp{
         void exit();
         void drawCanvasMode();
         void drawResultMode();
-        void detectPicture();
+        vector<vector<char>> convertImage();
+        int detectPicture(vector<vector<char>>);
 
 		void keyPressed(int key);
 		void keyReleased(int key);
