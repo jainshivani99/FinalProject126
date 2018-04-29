@@ -5,6 +5,8 @@ void ofApp::setup(){
     ofSetWindowTitle("Shivani's English to Chinese Number Translator");
     ofBackground(173, 216, 230);
     srand(static_cast<unsigned>(time(0))); // Seed random with current time
+    pinyin.load("pinyin.ttf", 30);
+    heading.load("Raleway-SemiBoldItalic.ttf", 30);
     
     //soundPlayer.load("Titanic.mp3");
     //soundPlayer.play();
@@ -108,7 +110,7 @@ void ofApp::drawCanvasMode() {
     //displays welcome message at the top of the screen
     ofSetColor(0, 0, 0);
     string welcome_message = "Please draw a number on the canvas";
-    ofDrawBitmapString(welcome_message, 100, 100);
+    heading.drawString(welcome_message, 100, 100);
     
     //features to set up the canvas
     ofSetColor(255,228,196);
@@ -117,7 +119,7 @@ void ofApp::drawCanvasMode() {
     
     //features to draw the line
     ofSetColor(0,0,0);
-    ofSetLineWidth(60.0);
+    ofSetLineWidth(100.0);
     line.draw();
     
     //displays message to press enter once to submit the picture
@@ -140,6 +142,10 @@ string ofApp::drawResultMode() {
     string quit_message = "Press Q to exit";
     ofDrawBitmapString(quit_message, 870, 720);
     
+    //displays message to press P to listen to audio
+    string play_message = "Press P to play audio";
+    ofDrawBitmapString(play_message, 870, 690);
+    
     //displays the appropriate chinese character
     if (best_estimate_pinyin == "Líng") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/ling.png");
@@ -148,7 +154,8 @@ string ofApp::drawResultMode() {
     } else if (best_estimate_pinyin == "Yī") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/yi.png");
         myChineseCharacter.draw(150,150,588,588);
-        ofDrawBitmapString(best_estimate_pinyin, 870, 400);
+        //ofDrawBitmapString("Yi1", 870, 400);
+        pinyin.drawString("Yi", 870, 440);
         chineseCharacterAudioFilePath = "01.mp3";
     } else if (best_estimate_pinyin == "Èr") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/er.png");
@@ -158,12 +165,14 @@ string ofApp::drawResultMode() {
     } else if (best_estimate_pinyin == "Sān") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/san.png");
         myChineseCharacter.draw(150,150,588,588);
-        ofDrawBitmapString(best_estimate_pinyin, 870, 400);
+        //ofDrawBitmapString(best_estimate_pinyin, 870, 400);
+        pinyin.drawString("S1n", 870, 440);
         chineseCharacterAudioFilePath = "03.mp3";
     } else if (best_estimate_pinyin == "Sì") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/si.png");
         myChineseCharacter.draw(150,150,588,588);
-        ofDrawBitmapString(best_estimate_pinyin, 870, 400);
+        //ofDrawBitmapString(best_estimate_pinyin, 870, 400);
+        pinyin.drawString("Si5", 870, 440);
         chineseCharacterAudioFilePath = "04.mp3";
     } else if (best_estimate_pinyin == "Wǔ") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/wu.png");
@@ -210,11 +219,11 @@ vector<vector<char>> ofApp::convertImage() {
             }
             double average = sum / 441.0;
             char current_char;
-            if (average >= 0 && average <= 50.0) {
+            if (average >= 0 && average <= 10.0) {
                 current_char = '#';
-            } else if (average >= 50.0 && average <= 100.0) {
+            } else if (average >= 10.0 && average <= 120.0) {
                 current_char = '+';
-            } else if (average >= 100.0) {
+            } else if (average >= 120.0) {
                 current_char = ' ';
             }
             image_in_char[i][j] = current_char;

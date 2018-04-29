@@ -25,6 +25,8 @@ class ofApp : public ofBaseApp{
         string chineseCharacterAudioFilePath;
         ofImage myCanvasImage;
         ofImage myChineseCharacter;
+        ofTrueTypeFont pinyin;
+        ofTrueTypeFont heading;
     
 		void setup();
 		void update();
