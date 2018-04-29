@@ -18,9 +18,11 @@ class ofApp : public ofBaseApp{
 	public:
         map<int, string> number_to_pinyin_conversion;
         ofSoundPlayer soundPlayer;
+        ofSoundPlayer chineseCharacter;
         ofPolyline line;
         AppState current_state_= DRAW_CANVAS;
-    string best_estimate_pinyin;
+        string best_estimate_pinyin;
+        string chineseCharacterAudioFilePath;
         ofImage myCanvasImage;
         ofImage myChineseCharacter;
     
@@ -29,11 +31,11 @@ class ofApp : public ofBaseApp{
 		void draw();
         void exit();
         void drawCanvasMode();
-        void drawResultMode();
+        string drawResultMode();
         vector<vector<char>> convertImage();
         int detectImage(vector<vector<char>>);
         string getChineseConversion(int bestEstimate);
-
+    
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
