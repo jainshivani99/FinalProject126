@@ -6,8 +6,8 @@ void ofApp::setup(){
     ofBackground(173, 216, 230);
     srand(static_cast<unsigned>(time(0))); // Seed random with current time
     
-    //soundPlayer.load("Titanic.mp3");
-    //soundPlayer.play();
+    soundPlayer.load("Titanic.mp3");
+    soundPlayer.play();
     //soundPlayer.setVolume(0.1f);
 }
 
@@ -30,18 +30,16 @@ void ofApp::keyPressed(int key){
     int upper_key = toupper(key); // Standardize on upper case
     if (current_state_ == DRAW_CANVAS) {
         if (upper_key == OF_KEY_RETURN) {
-            //cout << "Enter key pressed 2" << endl;
-            
             //process the picture the user drew
-            myImage.grabScreen(150, 150, 588, 588);
-            //myImage.save("User.png");
+            myCanvasImage.grabScreen(150, 150, 588, 588);
+            //myCanvasImage.save("User.png");
             vector<vector<char>> image_in_char = convertImage();
             current_state_ = RESULT;
-            int bestEstimate = detectPicture(image_in_char);
+            int bestEstimate = detectImage(image_in_char);
+            best_estimate_pinyin = getChineseConversion(bestEstimate);
         }
     } else if (current_state_ == RESULT) {
         if (upper_key == 'Q') {
-            //cout << "Quit key pressed 2" << endl;
             current_state_ = DRAW_CANVAS;
         }
     }
@@ -138,12 +136,16 @@ void ofApp::drawResultMode() {
     //displays message to press Q to exit result mode
     string quit_message = "Press Q to exit";
     ofDrawBitmapString(quit_message, 870, 720);
+    
+    //displays the appropriate chinese character
+    
+    
 }
 //--------------------------------------------------------------
 vector<vector<char>> ofApp::convertImage() {
-    myImage.setImageType(OF_IMAGE_GRAYSCALE);
+    myCanvasImage.setImageType(OF_IMAGE_GRAYSCALE);
     vector< vector<char> > image_in_char(28, vector<char> (28));
-    ofPixels & pixels = myImage.getPixels();
+    ofPixels & pixels = myCanvasImage.getPixels();
     //going through 2D vector image_in_char
     for (int i = 0; i < 28; i++) {
         for (int j = 0; j < 28; j++) {
@@ -178,12 +180,12 @@ vector<vector<char>> ofApp::convertImage() {
     return image_in_char;
 }
 //--------------------------------------------------------------
-int ofApp::detectPicture(vector<vector<char>> image_in_char) {
+int ofApp::detectImage(vector<vector<char>> image_in_char) {
     
     /*Training Data*/
     
     //function that initially gets the training data and organizes it
-    multimap <int, vector< vector<char> >> associated_label_and_image = get_labels_and_images("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/traininglabels", "/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/trainingimages");
+    multimap <int, vector< vector<char> >> associated_label_and_image = get_labels_and_images("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/traininglabels", "/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/trainingimages");
 
     //function that converts the pixels of images in training data to features
     multimap <int, vector< vector<int> >> associated_label_and_image_features = convert_pixels_to_features(associated_label_and_image);
@@ -206,3 +208,26 @@ int ofApp::detectPicture(vector<vector<char>> image_in_char) {
     cout << bestEstimate << endl;
     return bestEstimate;
 }
+//--------------------------------------------------------------
+string ofApp::getChineseConversion(int bestEstimate) {
+    //Setting up the map that stores a number and its associated pinyin (chinese translation)
+    //key - number (0-9)
+    //value - string (pinyin)
+    for (int i = 0; i < 10; i++) {
+        number_to_pinyin_conversion[i];
+    }
+    number_to_pinyin_conversion[0] = "Líng";
+    number_to_pinyin_conversion[1] = "Yī";
+    number_to_pinyin_conversion[2] = "Èr";
+    number_to_pinyin_conversion[3] = "Sān";
+    number_to_pinyin_conversion[4] = "Sì";
+    number_to_pinyin_conversion[5] = "Wǔ";
+    number_to_pinyin_conversion[6] = "Liù";
+    number_to_pinyin_conversion[7] = "Qī";
+    number_to_pinyin_conversion[8] = "Bā";
+    number_to_pinyin_conversion[9] = "Jiǔ";
+    
+    string best_estimate_pinyin = number_to_pinyin_conversion[bestEstimate];
+    return best_estimate_pinyin;
+}
+

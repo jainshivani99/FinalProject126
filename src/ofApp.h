@@ -16,11 +16,13 @@ enum AppState {
 class ofApp : public ofBaseApp{
 
 	public:
-        multimap<map<int,double>, vector<vector<int>>> posterior_probability_global;
+        map<int, string> number_to_pinyin_conversion;
         ofSoundPlayer soundPlayer;
         ofPolyline line;
         AppState current_state_= DRAW_CANVAS;
-        ofImage myImage;
+    string best_estimate_pinyin;
+        ofImage myCanvasImage;
+        ofImage myChineseCharacter;
     
 		void setup();
 		void update();
@@ -29,7 +31,8 @@ class ofApp : public ofBaseApp{
         void drawCanvasMode();
         void drawResultMode();
         vector<vector<char>> convertImage();
-        int detectPicture(vector<vector<char>>);
+        int detectImage(vector<vector<char>>);
+        string getChineseConversion(int bestEstimate);
 
 		void keyPressed(int key);
 		void keyReleased(int key);
