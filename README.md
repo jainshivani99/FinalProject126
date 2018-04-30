@@ -9,7 +9,7 @@ This application is an English to Chinese Number Translator, which gives the use
 #### How to Use:
 
 Start Screen:
-! [alt text] (/Users/shivanijain/Desktop/Screen Shot 2018-04-30 at 4.35.09 PM.png)
+! [Screenshot] (/Images/ss1.png)
 
 Once the user opens the application, this is the start screen. By clicking and dragging their mouse, they are able to draw on the screen. If they want to clear the screen, they can click anywhere on the screen. The user should draw the number they want on the canvas portion of the screen to get the most accurate results, like this:
 
