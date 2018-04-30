@@ -65,13 +65,14 @@ void ofApp::keyPressed(int key){
             //Exits out of the RESULT state and returns to DRAW_CANVAS state
             current_state_ = DRAW_CANVAS;
         } else if (upper_key == 'P') {
-            //Plays the audio of the chinese pronunciation 
+            //Plays the audio of the chinese pronunciation
             chinese_character_.load(chinese_character_audio_file_path_);
             chinese_character_.play();
         }
     }
 }
 
+//Draws a line when the user presses and drags the cursor
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
     ofPoint pt;
@@ -79,68 +80,73 @@ void ofApp::mouseDragged(int x, int y, int button){
     line_.addVertex(pt);
 }
 
+//Clears the line the user draws by clicking the mouse
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
     line_.clear();
 }
 
+//Draws graphics when the user is currently in the DRAW_CANVAS state
 //--------------------------------------------------------------
 void ofApp::drawCanvasMode() {
-    //displays welcome message at the top of the screen
+    //Displays welcome message at the top of the screen
     ofSetColor(0, 0, 0);
     string welcome_message = "Please draw a number on the canvas";
     heading_.drawString(welcome_message, 100, 100);
     
-    //features to set up the canvas
+    //Features to set up the canvas
     ofSetColor(255,228,196);
     ofFill();
     ofDrawRectangle(150,150,588,588);
     
-    //features to draw the line
+    //Features to draw the line
     ofSetColor(0,0,0);
     ofSetLineWidth(100.0);
     line_.draw();
     
-    //displays message to press enter once to submit the picture
+    //Displays message to press enter once to submit the picture
     string enter_message = "Press Enter to Submit";
     ofDrawBitmapString(enter_message, 870, 720);
     
-    //displays message to clear the canvas
+    //Displays message to clear the canvas
     string clear_message = "Click anywhere to clear";
     ofDrawBitmapString(clear_message, 870, 670);
     
 }
+
+//Draws graphics when the user is currently in the RESULT state
 //--------------------------------------------------------------
 void ofApp::drawResultMode() {
-    //displays submission message at the top of the screen
+    //Displays submission message at the top of the screen
     ofSetColor(0, 0, 0);
     string submission_message = "Results of your submission:";
     ofDrawBitmapString(submission_message, 100, 100);
     
-    //displays message to press Q to exit result mode
+    //Displays message to press Q to exit result mode
     string quit_message = "Press Q to exit";
     ofDrawBitmapString(quit_message, 870, 720);
     
-    //displays message to press P to listen to audio
+    //Displays message to press P to listen to audio
     string play_message = "Press P to play audio";
     ofDrawBitmapString(play_message, 870, 490);
     
-    //displays header for chinese output
+    //Displays header for chinese output
     ofDrawBitmapString("Chinese:", 870, 390);
     
-    //displays header for english picture output
+    //Displays header for english picture output
     ofDrawBitmapString("Your submission picture:", 870, 70);
     
-    //displays header for english output
+    //Displays header for english output
     ofDrawBitmapString("English:", 870, 270);
     
-    //displays picture of your submission
+    //Displays picture of the user's submission
     my_display_image_.setImageType(OF_IMAGE_COLOR_ALPHA);
     my_display_image_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/User.png");
     ofSetColor(255);
     my_display_image_.draw(870,90,150,150);
     
-    //displays the appropriate chinese character
+    //Displays the appropriate chinese character, english number, and chinese pinyin
+    //Associates the correct audio file to play with the correct chinese number
     if (best_estimate_pinyin_ == "Ling") {
         my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/ling.png");
         my_chinese_character_.draw(150,150,588,588);
@@ -221,15 +227,25 @@ void ofApp::drawResultMode() {
         chinese_character_audio_file_path_ = "Error.mp3";
     }
 }
+
+//Converts the image the user submits to the desired format of characters #, +, and ' ' to enter it into the classifier
 //--------------------------------------------------------------
 vector<vector<char>> ofApp::convertImage() {
+    //Converts image to gray scale
     my_canvas_image_.setImageType(OF_IMAGE_GRAYSCALE);
+    
+    //Sets up nested vector of chars to hold the final, downsized image
     vector< vector<char> > image_in_char(28, vector<char> (28));
+    
+    //Gets the pixels of my_canvas_image in a singular array
     ofPixels & pixels = my_canvas_image_.getPixels();
-    //going through 2D vector image_in_char
+    
+    //Going through 2D vector image_in_char
     for (int i = 0; i < 28; i++) {
         for (int j = 0; j < 28; j++) {
             int sum = 0;
+            //Accesses a block of pixels from pixels (array of pixels of my_canvas_image)
+            //Calculates the average of the gray scale numbers of these pixels in order to downsize the image to 28 x 28 (desired image size)
             for (int r = i * 21; r < (i * 21) + 21; r++) {
                 for (int c = j * 21; c < (j * 21) + 21; c++) {
                     int index = 588 * r + c;
@@ -238,6 +254,8 @@ vector<vector<char>> ofApp::convertImage() {
             }
             double average = sum / 441.0;
             char current_char;
+            
+            //associates the average value to a character and stores that character within the nested vector image_in_char
             if (average >= 0 && average <= 10.0) {
                 current_char = '#';
             } else if (average >= 10.0 && average <= 120.0) {
@@ -248,45 +266,39 @@ vector<vector<char>> ofApp::convertImage() {
             image_in_char[i][j] = current_char;
         }
     }
-    //prints out the image to test
-    for (int i = 0; i < image_in_char.size(); i++) {
-        for (int j = 0; j < image_in_char[i].size(); j++)
-        {
-            cout << image_in_char[i][j];
-        }
-        cout << endl;
-    }
-    
     return image_in_char;
 }
+
+//Classifies image that user drew as a number by passing it through the Naive Bayes classifier
 //--------------------------------------------------------------
 void ofApp::detectImage(vector<vector<char>> image_in_char) {
     
     /*Training Data*/
     
-    //function that initially gets the training data and organizes it
+    //Function that initially gets the training data and organizes it
     multimap <int, vector< vector<char> >> associated_label_and_image = get_labels_and_images("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/traininglabels", "/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/trainingimages");
 
-    //function that converts the pixels of images in training data to features
+    //Function that converts the pixels of images in training data to features
     multimap <int, vector< vector<int> >> associated_label_and_image_features = convert_pixels_to_features(associated_label_and_image);
 
-    //function that calculates the probability of each feature for each class
+    //Function that calculates the probability of each feature for each class
     map<int, vector<vector<double>> > class_to_feature_probability =
     calculate_probability_of_training_data_features(associated_label_and_image_features);
     
-    //function that calculates the probability of each class
+    //Function that calculates the probability of each class
     map<int, double> class_to_class_probability = calculate_probability_of_training_data_classes(associated_label_and_image_features);
     
     /*Test Data*/
     
-    //function that converts the pixels of an image in test data to features
+    //Function that converts the pixels of an image in test data to features
     vector<vector<int>> image_in_features = single_image_convert_pixels_to_features(image_in_char);
     
-    //function that returns the best estimate of the image
+    //Function that returns the best estimate of the image
     best_estimate_ = get_best_estimate_of_image(image_in_features, class_to_feature_probability, class_to_class_probability);
     
-    cout << best_estimate_ << endl;
 }
+
+//Accesses the chinese conversion of the classified image
 //--------------------------------------------------------------
 void ofApp::getChineseConversion() {
     //Setting up the map that stores a number and its associated pinyin (chinese translation)
@@ -295,6 +307,8 @@ void ofApp::getChineseConversion() {
     for (int i = 0; i < 11; i++) {
         number_to_pinyin_conversion_[i];
     }
+    
+    //Storing associated pinyin (chinese translation) to english number
     number_to_pinyin_conversion_[0] = "Ling";
     number_to_pinyin_conversion_[1] = "Yi";
     number_to_pinyin_conversion_[2] = "Er";
@@ -307,5 +321,6 @@ void ofApp::getChineseConversion() {
     number_to_pinyin_conversion_[9] = "Jiu";
     number_to_pinyin_conversion_[10] = "Not a valid entry";
     
+    //Assigns best_estimate_pinyin_ to the value at this map's best_estimate_ key
     best_estimate_pinyin_ = number_to_pinyin_conversion_[best_estimate_];
 }
