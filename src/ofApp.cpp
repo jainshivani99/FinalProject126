@@ -1,116 +1,95 @@
+//This class includes the functionality for running the application, such as taking user input, drawing the canvas, and displaying results
+
 #include "ofApp.h"
 
+//Sets up the background of the application with a title, background color of the window, and background music
 //--------------------------------------------------------------
 void ofApp::setup(){
+    //Displays window title and background color
     ofSetWindowTitle("Shivani's English to Chinese Number Translator");
     ofBackground(173, 216, 230);
     srand(static_cast<unsigned>(time(0))); // Seed random with current time
-    pinyin.load("TimesPinyin", 30);
-    heading.load("Raleway-SemiBoldItalic.ttf", 30);
     
-    //soundPlayer.load("Titanic.mp3");
-    //soundPlayer.play();
-    //soundPlayer.setVolume(0.1f);
+    //Loads customized font to be used throughout the program
+    pinyin_.load("TimesPinyin", 30);
+    heading_.load("Raleway-SemiBoldItalic.ttf", 30);
+    
+    //Plays background music on an infinite loop
+    if (true) {
+        sound_player_.load("Titanic.mp3");
+        sound_player_.play();
+        sound_player_.setVolume(0.1f);
+    }
 }
 
-//--------------------------------------------------------------
-void ofApp::update(){
-
-}
-
+//Draws graphics on the window depending on the current state of the application
+//2 states: DRAW_CANVAS, RESULT
 //--------------------------------------------------------------
 void ofApp::draw(){
+    //calls drawCanvasMode() if the user is currently on the DRAW_CANVAS state
     if (current_state_ == DRAW_CANVAS) {
         drawCanvasMode();
-    } else if(current_state_ == RESULT) {
+    }
+    //calls drawResultMode() if the user is currently on the RESULT state
+    else if(current_state_ == RESULT) {
         drawResultMode();
     }
 }
 
+//Performs different functions depending on which key the user presses and what state the user is in currently in the application
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     int upper_key = toupper(key); // Standardize on upper case
+    
+    //Can only perform these functions if they are in the DRAW_CANVAS state
     if (current_state_ == DRAW_CANVAS) {
         if (upper_key == OF_KEY_RETURN) {
-            //process the picture the user drew
-            myCanvasImage.grabScreen(150, 150, 588, 588);
-            myCanvasImage.save("User.png");
+            //processes the picture the user drew and saves it
+            my_canvas_image_.grabScreen(150, 150, 588, 588);
+            my_canvas_image_.save("User.png");
+            
+            //calls convertImage() to convert it to the desired format
             vector<vector<char>> image_in_char = convertImage();
+            
+            //changes the state of the application to the RESULT state
             current_state_ = RESULT;
-            int bestEstimate = detectImage(image_in_char);
-            best_estimate_pinyin = getChineseConversion(bestEstimate);
-        }
-    } else if (current_state_ == RESULT) {
-        if (upper_key == 'Q') {
-            current_state_ = DRAW_CANVAS;
-        } else if (upper_key == 'P') {
-            chineseCharacter.load(chineseCharacterAudioFilePath);
-            chineseCharacter.play();
+            
+            //detects the image as a number and gets the chinese conversion
+            detectImage(image_in_char);
+            getChineseConversion();
         }
     }
-}
-
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y){
-
+    //Can only perform these functions if they are in the RESULT state
+    else if (current_state_ == RESULT) {
+        if (upper_key == 'Q') {
+            //Exits out of the RESULT state and returns to DRAW_CANVAS state
+            current_state_ = DRAW_CANVAS;
+        } else if (upper_key == 'P') {
+            //Plays the audio of the chinese pronunciation 
+            chinese_character_.load(chinese_character_audio_file_path_);
+            chinese_character_.play();
+        }
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
     ofPoint pt;
     pt.set(x,y);
-    line.addVertex(pt);
+    line_.addVertex(pt);
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-    line.clear();
+    line_.clear();
 }
 
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
-
-}
-//--------------------------------------------------------------
-void ofApp::exit() {
-    
-}
 //--------------------------------------------------------------
 void ofApp::drawCanvasMode() {
     //displays welcome message at the top of the screen
     ofSetColor(0, 0, 0);
     string welcome_message = "Please draw a number on the canvas";
-    heading.drawString(welcome_message, 100, 100);
+    heading_.drawString(welcome_message, 100, 100);
     
     //features to set up the canvas
     ofSetColor(255,228,196);
@@ -120,7 +99,7 @@ void ofApp::drawCanvasMode() {
     //features to draw the line
     ofSetColor(0,0,0);
     ofSetLineWidth(100.0);
-    line.draw();
+    line_.draw();
     
     //displays message to press enter once to submit the picture
     string enter_message = "Press Enter to Submit";
@@ -132,7 +111,7 @@ void ofApp::drawCanvasMode() {
     
 }
 //--------------------------------------------------------------
-string ofApp::drawResultMode() {
+void ofApp::drawResultMode() {
     //displays submission message at the top of the screen
     ofSetColor(0, 0, 0);
     string submission_message = "Results of your submission:";
@@ -156,90 +135,97 @@ string ofApp::drawResultMode() {
     ofDrawBitmapString("English:", 870, 270);
     
     //displays picture of your submission
-    myDisplayImage.setImageType(OF_IMAGE_COLOR_ALPHA);
-    myDisplayImage.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/User.png");
+    my_display_image_.setImageType(OF_IMAGE_COLOR_ALPHA);
+    my_display_image_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/User.png");
     ofSetColor(255);
-    myDisplayImage.draw(870,90,150,150);
+    my_display_image_.draw(870,90,150,150);
     
     //displays the appropriate chinese character
-    if (best_estimate_pinyin == "Ling") {
-        myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/ling.png");
-        myChineseCharacter.draw(150,150,588,588);
+    if (best_estimate_pinyin_ == "Ling") {
+        my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/ling.png");
+        my_chinese_character_.draw(150,150,588,588);
         ofSetColor(0);
-        pinyin.drawString("0 - Zero", 870, 320);
-        pinyin.drawString("Líng", 870, 440);
-        chineseCharacterAudioFilePath = "00.mp3";
-    } else if (best_estimate_pinyin == "Yi") {
-        myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/yi.png");
-        myChineseCharacter.draw(150,150,588,588);
+        pinyin_.drawString("0 - Zero", 870, 320);
+        pinyin_.drawString("Líng", 870, 440);
+        chinese_character_audio_file_path_ = "00.mp3";
+    } else if (best_estimate_pinyin_ == "Yi") {
+        my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/yi.png");
+        my_chinese_character_.draw(150,150,588,588);
         ofSetColor(0);
-        pinyin.drawString("1 - One", 870, 320);
-        pinyin.drawString("Yï", 870, 440);
-        chineseCharacterAudioFilePath = "01.mp3";
-    } else if (best_estimate_pinyin == "Er") {
-        myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/er.png");
-        myChineseCharacter.draw(150,150,588,588);
+        pinyin_.drawString("1 - One", 870, 320);
+        pinyin_.drawString("Yï", 870, 440);
+        chinese_character_audio_file_path_ = "01.mp3";
+    } else if (best_estimate_pinyin_ == "Er") {
+        my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/er.png");
+        my_chinese_character_.draw(150,150,588,588);
         ofSetColor(0);
-        pinyin.drawString("2 - Two", 870, 320);
-        pinyin.drawString("Èr", 870, 440);
-        chineseCharacterAudioFilePath = "02.mp3";
-    } else if (best_estimate_pinyin == "San") {
-        myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/san.png");
-        myChineseCharacter.draw(150,150,588,588);
+        pinyin_.drawString("2 - Two", 870, 320);
+        pinyin_.drawString("Èr", 870, 440);
+        chinese_character_audio_file_path_ = "02.mp3";
+    } else if (best_estimate_pinyin_ == "San") {
+        my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/san.png");
+        my_chinese_character_.draw(150,150,588,588);
         ofSetColor(0);
-        pinyin.drawString("3 - Three", 870, 320);
-        pinyin.drawString("Sän", 870, 440);
-        chineseCharacterAudioFilePath = "03.mp3";
-    } else if (best_estimate_pinyin == "Si") {
-        myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/si.png");
-        myChineseCharacter.draw(150,150,588,588);
+        pinyin_.drawString("3 - Three", 870, 320);
+        pinyin_.drawString("Sän", 870, 440);
+        chinese_character_audio_file_path_ = "03.mp3";
+    } else if (best_estimate_pinyin_ == "Si") {
+        my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/si.png");
+        my_chinese_character_.draw(150,150,588,588);
         ofSetColor(0);
-        pinyin.drawString("4 - Four", 870, 320);
-        pinyin.drawString("Sì", 870, 440);
-        chineseCharacterAudioFilePath = "04.mp3";
-    } else if (best_estimate_pinyin == "Wu") {
-        myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/wu.png");
-        myChineseCharacter.draw(150,150,588,588);
+        pinyin_.drawString("4 - Four", 870, 320);
+        pinyin_.drawString("Sì", 870, 440);
+        chinese_character_audio_file_path_ = "04.mp3";
+    } else if (best_estimate_pinyin_ == "Wu") {
+        my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/wu.png");
+        my_chinese_character_.draw(150,150,588,588);
         ofSetColor(0);
-        pinyin.drawString("5 - Five", 870, 320);
-        pinyin.drawString("Wû", 870, 440);
-        chineseCharacterAudioFilePath = "05.mp3";
-    } else if (best_estimate_pinyin == "Liu") {
-        myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/liu.png");
-        myChineseCharacter.draw(150,150,588,588);
+        pinyin_.drawString("5 - Five", 870, 320);
+        pinyin_.drawString("Wû", 870, 440);
+        chinese_character_audio_file_path_ = "05.mp3";
+    } else if (best_estimate_pinyin_ == "Liu") {
+        my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/liu.png");
+        my_chinese_character_.draw(150,150,588,588);
         ofSetColor(0);
-        pinyin.drawString("6 - Six", 870, 320);
-        pinyin.drawString("Liù", 870, 440);
-        chineseCharacterAudioFilePath = "06.mp3";
-    } else if (best_estimate_pinyin == "Qi") {
-        myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/qi.png");
-        myChineseCharacter.draw(150,150,588,588);
+        pinyin_.drawString("6 - Six", 870, 320);
+        pinyin_.drawString("Liù", 870, 440);
+        chinese_character_audio_file_path_ = "06.mp3";
+    } else if (best_estimate_pinyin_ == "Qi") {
+        my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/qi.png");
+        my_chinese_character_.draw(150,150,588,588);
         ofSetColor(0);
-        pinyin.drawString("7 - Seven", 870, 320);
-        pinyin.drawString("Qï", 870, 440);
-        chineseCharacterAudioFilePath = "07.mp3";
-    } else if (best_estimate_pinyin == "Ba") {
-        myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/ba.png");
-        myChineseCharacter.draw(150,150,588,588);
+        pinyin_.drawString("7 - Seven", 870, 320);
+        pinyin_.drawString("Qï", 870, 440);
+        chinese_character_audio_file_path_ = "07.mp3";
+    } else if (best_estimate_pinyin_ == "Ba") {
+        my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/ba.png");
+        my_chinese_character_.draw(150,150,588,588);
         ofSetColor(0);
-        pinyin.drawString("8 - Eight", 870, 320);
-        pinyin.drawString("Bä", 870, 440);
-        chineseCharacterAudioFilePath = "08.mp3";
-    } else if (best_estimate_pinyin == "Jiu") {
-        myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/jiu.png");
-        myChineseCharacter.draw(150,150,588,588);
+        pinyin_.drawString("8 - Eight", 870, 320);
+        pinyin_.drawString("Bä", 870, 440);
+        chinese_character_audio_file_path_ = "08.mp3";
+    } else if (best_estimate_pinyin_ == "Jiu") {
+        my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/jiu.png");
+        my_chinese_character_.draw(150,150,588,588);
         ofSetColor(0);
-        pinyin.drawString("9 - Nine", 870, 320);
-        pinyin.drawString("Jiû", 870, 440);
-        chineseCharacterAudioFilePath = "09.mp3";
+        pinyin_.drawString("9 - Nine", 870, 320);
+        pinyin_.drawString("Jiû", 870, 440);
+        chinese_character_audio_file_path_ = "09.mp3";
+    } else if (best_estimate_pinyin_ == "Not a valid entry") {
+        my_chinese_character_.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/face.png");
+        my_chinese_character_.draw(150,150,588,588);
+        ofSetColor(0);
+        heading_.drawString("Not a valid entry, please draw again", 100, 140);
+        pinyin_.drawString("Not Found", 870, 320);
+        pinyin_.drawString("Not Found", 870, 440);
+        chinese_character_audio_file_path_ = "Error.mp3";
     }
-    return chineseCharacterAudioFilePath;
 }
 //--------------------------------------------------------------
 vector<vector<char>> ofApp::convertImage() {
-    myCanvasImage.setImageType(OF_IMAGE_GRAYSCALE);
+    my_canvas_image_.setImageType(OF_IMAGE_GRAYSCALE);
     vector< vector<char> > image_in_char(28, vector<char> (28));
-    ofPixels & pixels = myCanvasImage.getPixels();
+    ofPixels & pixels = my_canvas_image_.getPixels();
     //going through 2D vector image_in_char
     for (int i = 0; i < 28; i++) {
         for (int j = 0; j < 28; j++) {
@@ -274,7 +260,7 @@ vector<vector<char>> ofApp::convertImage() {
     return image_in_char;
 }
 //--------------------------------------------------------------
-int ofApp::detectImage(vector<vector<char>> image_in_char) {
+void ofApp::detectImage(vector<vector<char>> image_in_char) {
     
     /*Training Data*/
     
@@ -297,30 +283,29 @@ int ofApp::detectImage(vector<vector<char>> image_in_char) {
     vector<vector<int>> image_in_features = single_image_convert_pixels_to_features(image_in_char);
     
     //function that returns the best estimate of the image
-    int bestEstimate = get_best_estimate_of_image(image_in_features, class_to_feature_probability, class_to_class_probability);
+    best_estimate_ = get_best_estimate_of_image(image_in_features, class_to_feature_probability, class_to_class_probability);
     
-    cout << bestEstimate << endl;
-    return bestEstimate;
+    cout << best_estimate_ << endl;
 }
 //--------------------------------------------------------------
-string ofApp::getChineseConversion(int bestEstimate) {
+void ofApp::getChineseConversion() {
     //Setting up the map that stores a number and its associated pinyin (chinese translation)
-    //key - number (0-9)
+    //key - number (0-10) (10 - not a valid entry)
     //value - string (pinyin)
-    for (int i = 0; i < 10; i++) {
-        number_to_pinyin_conversion[i];
+    for (int i = 0; i < 11; i++) {
+        number_to_pinyin_conversion_[i];
     }
-    number_to_pinyin_conversion[0] = "Ling";
-    number_to_pinyin_conversion[1] = "Yi";
-    number_to_pinyin_conversion[2] = "Er";
-    number_to_pinyin_conversion[3] = "San";
-    number_to_pinyin_conversion[4] = "Si";
-    number_to_pinyin_conversion[5] = "Wu";
-    number_to_pinyin_conversion[6] = "Liu";
-    number_to_pinyin_conversion[7] = "Qi";
-    number_to_pinyin_conversion[8] = "Ba";
-    number_to_pinyin_conversion[9] = "Jiu";
+    number_to_pinyin_conversion_[0] = "Ling";
+    number_to_pinyin_conversion_[1] = "Yi";
+    number_to_pinyin_conversion_[2] = "Er";
+    number_to_pinyin_conversion_[3] = "San";
+    number_to_pinyin_conversion_[4] = "Si";
+    number_to_pinyin_conversion_[5] = "Wu";
+    number_to_pinyin_conversion_[6] = "Liu";
+    number_to_pinyin_conversion_[7] = "Qi";
+    number_to_pinyin_conversion_[8] = "Ba";
+    number_to_pinyin_conversion_[9] = "Jiu";
+    number_to_pinyin_conversion_[10] = "Not a valid entry";
     
-    string best_estimate_pinyin = number_to_pinyin_conversion[bestEstimate];
-    return best_estimate_pinyin;
+    best_estimate_pinyin_ = number_to_pinyin_conversion_[best_estimate_];
 }

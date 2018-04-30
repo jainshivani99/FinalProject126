@@ -10,45 +10,36 @@
 // Enum to represent the current state of the app
 enum AppState {
     DRAW_CANVAS = 0,
-    RESULT
+    RESULT,
 };
 
 class ofApp : public ofBaseApp{
 
 	public:
-        map<int, string> number_to_pinyin_conversion;
-        ofSoundPlayer soundPlayer;
-        ofSoundPlayer chineseCharacter;
-        ofPolyline line;
+        map<int, string> number_to_pinyin_conversion_;
+        ofSoundPlayer sound_player_;
+        ofSoundPlayer chinese_character_;
+        ofPolyline line_;
         AppState current_state_= DRAW_CANVAS;
-        string best_estimate_pinyin;
-        string chineseCharacterAudioFilePath;
-        ofImage myCanvasImage;
-        ofImage myChineseCharacter;
-        ofImage myDisplayImage;
-        ofTrueTypeFont pinyin;
-        ofTrueTypeFont heading;
+        string best_estimate_pinyin_;
+        int best_estimate_;
+        string chinese_character_audio_file_path_;
+        ofImage my_canvas_image_;
+        ofImage my_chinese_character_;
+        ofImage my_display_image_;
+        ofTrueTypeFont pinyin_;
+        ofTrueTypeFont heading_;
     
 		void setup();
-		void update();
 		void draw();
-        void exit();
         void drawCanvasMode();
-        string drawResultMode();
+        void drawResultMode();
+        void detectImage(vector<vector<char>>);
+        void getChineseConversion();
         vector<vector<char>> convertImage();
-        int detectImage(vector<vector<char>>);
-        string getChineseConversion(int bestEstimate);
     
 		void keyPressed(int key);
-		void keyReleased(int key);
-		void mouseMoved(int x, int y );
 		void mouseDragged(int x, int y, int button);
 		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
-		void mouseEntered(int x, int y);
-		void mouseExited(int x, int y);
-		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
     
 };
