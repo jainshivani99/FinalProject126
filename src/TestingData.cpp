@@ -102,11 +102,7 @@ int get_best_estimate_of_image(vector<vector<int>> currentImage, map<int, vector
     if (currentMax <= -350.0) {
         currentClass = 10;
     }
-    //printing out the posterior probabilities
-    for (map<int, double>::const_iterator it = class_to_posterior_probability_test.begin(); it != class_to_posterior_probability_test.end(); ++it) {
-        cout << it->first << endl;
-        cout << it->second << endl;
-    }        
+        
     return currentClass;    
 }
 

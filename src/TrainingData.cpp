@@ -92,6 +92,7 @@ map<int, vector<vector<double>> > calculate_probability_of_training_data_feature
     return class_to_feature_probability;
 }
 
+//Calculates probability of each digit (class) to use in calculating posterior probabilites of each image
 map <int, double> calculate_probability_of_training_data_classes(multimap <int, vector< vector<int> >> associated_label_and_image_features) {
     map <int, double> class_to_class_probability;
     int totalSameLabel;
