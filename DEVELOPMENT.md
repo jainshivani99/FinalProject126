@@ -16,3 +16,10 @@
 * Finalized ofSoundPlayer as Sound library
 * In the process of converting image and passing it through classifer, and displaying appropriate graphics and sounds
 * Goal is to finish by Sunday, April 29th
+
+### Code Review #3 (April 30 - Rescheduled):
+* Added chinese conversion functionality that displays picture of character, pinyin, and audio
+* Improved appearence of UI by adding customized font and more graphics
+* Improved accuracy of classifier
+* Cleaned up code and documentation
+* Wrote tests for certain functionalities of the classifier
