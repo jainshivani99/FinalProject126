@@ -34,7 +34,7 @@ void ofApp::keyPressed(int key){
         if (upper_key == OF_KEY_RETURN) {
             //process the picture the user drew
             myCanvasImage.grabScreen(150, 150, 588, 588);
-            //myCanvasImage.save("User.png");
+            myCanvasImage.save("User.png");
             vector<vector<char>> image_in_char = convertImage();
             current_state_ = RESULT;
             int bestEstimate = detectImage(image_in_char);
@@ -144,56 +144,92 @@ string ofApp::drawResultMode() {
     
     //displays message to press P to listen to audio
     string play_message = "Press P to play audio";
-    ofDrawBitmapString(play_message, 870, 690);
+    ofDrawBitmapString(play_message, 870, 490);
+    
+    //displays header for chinese output
+    ofDrawBitmapString("Chinese:", 870, 390);
+    
+    //displays header for english picture output
+    ofDrawBitmapString("Your submission picture:", 870, 70);
+    
+    //displays header for english output
+    ofDrawBitmapString("English:", 870, 270);
+    
+    //displays picture of your submission
+    myDisplayImage.setImageType(OF_IMAGE_COLOR_ALPHA);
+    myDisplayImage.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/User.png");
+    ofSetColor(255);
+    myDisplayImage.draw(870,90,150,150);
     
     //displays the appropriate chinese character
     if (best_estimate_pinyin == "Ling") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/ling.png");
         myChineseCharacter.draw(150,150,588,588);
+        ofSetColor(0);
+        pinyin.drawString("0 - Zero", 870, 320);
         pinyin.drawString("Líng", 870, 440);
+        chineseCharacterAudioFilePath = "00.mp3";
     } else if (best_estimate_pinyin == "Yi") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/yi.png");
         myChineseCharacter.draw(150,150,588,588);
+        ofSetColor(0);
+        pinyin.drawString("1 - One", 870, 320);
         pinyin.drawString("Yï", 870, 440);
         chineseCharacterAudioFilePath = "01.mp3";
     } else if (best_estimate_pinyin == "Er") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/er.png");
         myChineseCharacter.draw(150,150,588,588);
+        ofSetColor(0);
+        pinyin.drawString("2 - Two", 870, 320);
         pinyin.drawString("Èr", 870, 440);
         chineseCharacterAudioFilePath = "02.mp3";
     } else if (best_estimate_pinyin == "San") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/san.png");
         myChineseCharacter.draw(150,150,588,588);
+        ofSetColor(0);
+        pinyin.drawString("3 - Three", 870, 320);
         pinyin.drawString("Sän", 870, 440);
         chineseCharacterAudioFilePath = "03.mp3";
     } else if (best_estimate_pinyin == "Si") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/si.png");
         myChineseCharacter.draw(150,150,588,588);
+        ofSetColor(0);
+        pinyin.drawString("4 - Four", 870, 320);
         pinyin.drawString("Sì", 870, 440);
         chineseCharacterAudioFilePath = "04.mp3";
     } else if (best_estimate_pinyin == "Wu") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/wu.png");
         myChineseCharacter.draw(150,150,588,588);
+        ofSetColor(0);
+        pinyin.drawString("5 - Five", 870, 320);
         pinyin.drawString("Wû", 870, 440);
         chineseCharacterAudioFilePath = "05.mp3";
     } else if (best_estimate_pinyin == "Liu") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/liu.png");
         myChineseCharacter.draw(150,150,588,588);
+        ofSetColor(0);
+        pinyin.drawString("6 - Six", 870, 320);
         pinyin.drawString("Liù", 870, 440);
         chineseCharacterAudioFilePath = "06.mp3";
     } else if (best_estimate_pinyin == "Qi") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/qi.png");
         myChineseCharacter.draw(150,150,588,588);
+        ofSetColor(0);
+        pinyin.drawString("7 - Seven", 870, 320);
         pinyin.drawString("Qï", 870, 440);
         chineseCharacterAudioFilePath = "07.mp3";
     } else if (best_estimate_pinyin == "Ba") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/ba.png");
         myChineseCharacter.draw(150,150,588,588);
+        ofSetColor(0);
+        pinyin.drawString("8 - Eight", 870, 320);
         pinyin.drawString("Bä", 870, 440);
         chineseCharacterAudioFilePath = "08.mp3";
     } else if (best_estimate_pinyin == "Jiu") {
         myChineseCharacter.load("/Users/shivanijain/OF_ROOT/apps/myApps/finalproject/bin/data/Images/jiu.png");
         myChineseCharacter.draw(150,150,588,588);
+        ofSetColor(0);
+        pinyin.drawString("9 - Nine", 870, 320);
         pinyin.drawString("Jiû", 870, 440);
         chineseCharacterAudioFilePath = "09.mp3";
     }
