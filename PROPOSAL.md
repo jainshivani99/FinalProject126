@@ -4,7 +4,7 @@
 
 ### Explanation:
 
-This app will be a English to Chinese Number Translator, which will give the user the ability to have their handwritten numbers recognized in English and converted to Chinese. This project will implement a canvas where the user can write a number using their cursor, which will use a GUI. The project will also partly extend our Naive Bayes classifier assignment by using the classifier to recognize the number the user has written. Once the computer recognizes the number, it will display both the number written in English and associated Chinese characters of the number. It will also use the sound library to play an audio clip of the number being said in both English and Chinese.
+This application will be a English to Chinese Number Translator, which will give the user the ability to have their handwritten numbers recognized in English and converted to Chinese. This project will implement a canvas where the user can write a number using their cursor, which will use a GUI. The project will also partly extend our Naive Bayes classifier assignment by using the classifier to recognize the number the user has written. Once the computer recognizes the number, it will display both the number written in English and associated Chinese characters of the number. It will also use the sound library to play an audio clip of the number being said in both English and Chinese.
 
 ### Inspiration:
 
