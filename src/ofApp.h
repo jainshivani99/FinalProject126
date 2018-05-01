@@ -18,6 +18,14 @@ enum AppState {
 class ofApp : public ofBaseApp{
 
 	public:
+    
+        const double kTotalPatchNumPixels = 441.0;
+        const int kPatchNumPixels = 21;
+        const int kTotalCanvasNumPixels = 588;
+        const int kDesiredImageSize = 28;
+        const double kBlackUpperBound = 10.0;
+        const double kGrayUpperBound = 120.0;
+    
         //Sound player objects to play sound
         ofSoundPlayer sound_player_;
         ofSoundPlayer chinese_character_;

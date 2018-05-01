@@ -241,26 +241,26 @@ vector<vector<char>> ofApp::convertImage() {
     ofPixels & pixels = my_canvas_image_.getPixels();
     
     //Going through 2D vector image_in_char
-    for (int i = 0; i < 28; i++) {
-        for (int j = 0; j < 28; j++) {
+    for (int i = 0; i < kDesiredImageSize; i++) {
+        for (int j = 0; j < kDesiredImageSize; j++) {
             int sum = 0;
             //Accesses a block of pixels from pixels (array of pixels of my_canvas_image)
             //Calculates the average of the gray scale numbers of these pixels in order to downsize the image to 28 x 28 (desired image size)
-            for (int r = i * 21; r < (i * 21) + 21; r++) {
-                for (int c = j * 21; c < (j * 21) + 21; c++) {
-                    int index = 588 * r + c;
+            for (int r = i * kPatchNumPixels; r < (i * kPatchNumPixels) + kPatchNumPixels; r++) {
+                for (int c = j * kPatchNumPixels; c < (j * kPatchNumPixels) + kPatchNumPixels; c++) {
+                    int index = kTotalCanvasNumPixels * r + c;
                     sum += pixels[index];
                 }
             }
-            double average = sum / 441.0;
+            double average = sum / kTotalPatchNumPixels;
             char current_char;
             
             //associates the average value to a character and stores that character within the nested vector image_in_char
-            if (average >= 0 && average <= 10.0) {
+            if (average >= 0 && average <= kBlackUpperBound) {
                 current_char = '#';
-            } else if (average >= 10.0 && average <= 120.0) {
+            } else if (average >= kBlackUpperBound && average <= kGrayUpperBound) {
                 current_char = '+';
-            } else if (average >= 120.0) {
+            } else if (average >= kGrayUpperBound) {
                 current_char = ' ';
             }
             image_in_char[i][j] = current_char;
